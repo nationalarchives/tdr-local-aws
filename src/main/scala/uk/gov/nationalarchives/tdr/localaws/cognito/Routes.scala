@@ -6,6 +6,6 @@ import ch.megard.akka.http.cors.scaladsl.CorsDirectives._
 
 object Routes {
   val route: Route = cors() {
-    complete("{\"IdentityId\": \"some-fake-identity-id\"}")
+    complete("{\"IdentityId\": \"some-fake-identity-id\", \"Credentials\": {}}")
   }
 }
