@@ -8,9 +8,12 @@ import io.circe.generic.auto._
 
 object Routes {
   val route: Route = cors() {
-    complete(CognitoResponse("some-fake-identity-id", Credentials()))
+    complete(CognitoResponse(
+      "some-fake-identity-id",
+      Credentials("some-fake-access-key", "some-fake-secret-key"))
+    )
   }
 }
 
 case class CognitoResponse(IdentityId: String, Credentials: Credentials)
-case class Credentials()
+case class Credentials(AccessKeyId: String, SecretKey: String)
