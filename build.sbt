@@ -3,7 +3,7 @@ ThisBuild / scalaVersion := "2.13.2"
 
 val circeVersion = "0.13.0"
 
-lazy val localCognito = (project in file("."))
+lazy val localCognito = (project in file("cognito"))
   .settings(
     name := "tdr-local-aws",
     libraryDependencies ++= Seq(
