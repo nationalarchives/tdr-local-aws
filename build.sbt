@@ -16,3 +16,8 @@ lazy val localCognito = (project in file("cognito"))
       "io.circe" %% "circe-parser" % circeVersion
     )
   )
+
+lazy val backendChecks = (project in file("backend-checks"))
+  .settings(
+    name := "tdr-local-backend-checks"
+  )
