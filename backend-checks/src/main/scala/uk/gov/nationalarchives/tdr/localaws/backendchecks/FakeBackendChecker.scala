@@ -24,5 +24,7 @@ object FakeBackendChecker extends App {
       val name = pathEvent.context()
       println(s"Found file with name $name")
     })
+
+    key.reset()
   }
 }
