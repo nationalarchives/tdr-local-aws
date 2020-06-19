@@ -14,34 +14,7 @@ object FakeBackendChecker extends App {
 
   val initialPaths = registerAll(parentDirectory)
 
-  while(true) {
-    println("Watching for changes")
-
-    val watchKey: WatchKey = watcher.take()
-    val eventPath = initialPaths(watchKey)
-
-    watchKey.pollEvents().asScala.foreach((event: WatchEvent[_]) => {
-      val pathEvent: WatchEvent[Path] = event.asInstanceOf[WatchEvent[Path]]
-      val newFileName = pathEvent.context()
-      val fullPath = eventPath.resolve(newFileName)
-
-      if (Files.isDirectory(fullPath)) {
-        registerAll(fullPath)
-
-        Files.walkFileTree(fullPath, new SimpleFileVisitor[Path] {
-          override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
-            runFileChecks(file)
-
-            FileVisitResult.CONTINUE
-          }
-        })
-      } else {
-        runFileChecks(fullPath)
-      }
-    })
-
-    watchKey.reset()
-  }
+  monitorChanges(initialPaths)
 
   def runFileChecks(path: Path): Unit = {
     println(s"Placeholder for file checks on path $path")
@@ -62,5 +35,41 @@ object FakeBackendChecker extends App {
     })
 
     pathsByKey.toMap
+  }
+
+  @scala.annotation.tailrec
+  def monitorChanges(currentPaths: Map[WatchKey, Path]): Map[WatchKey, Path] = {
+    println("Watching for changes")
+
+    val watchKey: WatchKey = watcher.take()
+    val eventPath = currentPaths(watchKey)
+
+    val updatedPaths = watchKey.pollEvents().asScala.flatMap((event: WatchEvent[_]) => {
+      val pathEvent: WatchEvent[Path] = event.asInstanceOf[WatchEvent[Path]]
+      val newFileName = pathEvent.context()
+      val fullPath = eventPath.resolve(newFileName)
+
+      if (Files.isDirectory(fullPath)) {
+        val newPaths = registerAll(fullPath)
+
+        Files.walkFileTree(fullPath, new SimpleFileVisitor[Path] {
+          override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
+            runFileChecks(file)
+
+            FileVisitResult.CONTINUE
+          }
+        })
+
+        currentPaths ++ newPaths
+      } else {
+        runFileChecks(fullPath)
+
+        currentPaths
+      }
+    }).toMap
+
+    watchKey.reset()
+
+    monitorChanges(updatedPaths)
   }
 }
