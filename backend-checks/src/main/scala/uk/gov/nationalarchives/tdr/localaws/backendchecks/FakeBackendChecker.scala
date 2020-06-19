@@ -1,30 +1,35 @@
 package uk.gov.nationalarchives.tdr.localaws.backendchecks
 
 import java.nio.file.StandardWatchEventKinds.ENTRY_CREATE
-import java.nio.file.{FileSystems, Path, Paths, WatchEvent, WatchKey}
+import java.nio.file.{FileSystems, Files, Path, Paths, WatchEvent, WatchKey}
 
 import scala.jdk.CollectionConverters._
 
 object FakeBackendChecker extends App {
 
-  val path = Paths.get("/tmp/test-data")
+  val parentDirectory = Paths.get("/tmp/test-data")
 
   val watcher = FileSystems.getDefault.newWatchService
 
-  // TODO: Recursively register paths? Or monitor for new directories?
-  path.register(watcher, ENTRY_CREATE)
+  parentDirectory.register(watcher, ENTRY_CREATE)
 
   while(true) {
-    println("In loop")
-//    Thread.sleep(2000)
+    println("Watching for changes")
 
-    val key: WatchKey = watcher.take()
-    key.pollEvents().asScala.foreach((event: WatchEvent[_]) => {
+    val watchKey: WatchKey = watcher.take()
+    watchKey.pollEvents().asScala.foreach((event: WatchEvent[_]) => {
       val pathEvent: WatchEvent[Path] = event.asInstanceOf[WatchEvent[Path]]
-      val name = pathEvent.context()
-      println(s"Found file with name $name")
+      val newFileName = pathEvent.context()
+      val fullPath = parentDirectory.resolve(newFileName)
+      println(s"Found new file or directory at path $fullPath")
+
+      if (Files.isDirectory(fullPath)) {
+        println(s"Registering directory $fullPath")
+        // TODO: Test nested path created
+        fullPath.register(watcher, ENTRY_CREATE)
+      }
     })
 
-    key.reset()
+    watchKey.reset()
   }
 }
