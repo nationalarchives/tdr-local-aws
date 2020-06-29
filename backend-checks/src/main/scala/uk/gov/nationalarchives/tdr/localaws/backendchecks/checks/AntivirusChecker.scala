@@ -10,10 +10,7 @@ import uk.gov.nationalarchives.tdr.keycloak.KeycloakUtils
 
 import scala.concurrent.ExecutionContext
 
-class AntivirusChecker(implicit val executionContext: ExecutionContext) {
-  // TODO: Inject
-  val config: Config = ConfigFactory.load
-
+class AntivirusChecker(config: Config)(implicit val executionContext: ExecutionContext) {
   // TODO: Move API URL to config
   private val apiUrl = "http://localhost:8080/graphql"
   private val getMetadataType = GetClientFileMetadata.getClientFileMetadata
