@@ -22,7 +22,9 @@ lazy val backendChecks = (project in file("backend-checks"))
     name := "tdr-local-backend-checks",
     resolvers += "TDR Releases" at "s3://tdr-releases-mgmt",
     libraryDependencies ++= Seq(
+      "com.typesafe" % "config" % "1.4.0",
+      "uk.gov.nationalarchives" %% "tdr-auth-utils" % "0.0.18",
       "uk.gov.nationalarchives" %% "tdr-graphql-client" % "0.0.13",
-      "uk.gov.nationalarchives" %% "tdr-generated-graphql" % "0.0.54-SNAPSHOT"
+      "uk.gov.nationalarchives" %% "tdr-generated-graphql" % "0.0.54.1-SNAPSHOT"
     )
   )

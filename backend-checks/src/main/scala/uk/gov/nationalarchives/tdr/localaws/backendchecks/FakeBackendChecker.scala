@@ -9,6 +9,8 @@ import uk.gov.nationalarchives.tdr.localaws.backendchecks.checks.AntivirusChecke
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 object FakeBackendChecker extends App {
 
   val antivirusChecker = new AntivirusChecker
