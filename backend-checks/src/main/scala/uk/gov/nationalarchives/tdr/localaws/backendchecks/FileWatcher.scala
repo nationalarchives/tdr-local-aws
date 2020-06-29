@@ -8,9 +8,10 @@ import java.util.UUID
 import uk.gov.nationalarchives.tdr.localaws.backendchecks.checks.FileCheck
 
 import scala.collection.mutable
+import scala.concurrent.ExecutionContext
 import scala.jdk.CollectionConverters._
 
-class FileWatcher(parentDirectory: Path, fileCheck: FileCheck) {
+class FileWatcher(parentDirectory: Path, fileCheck: FileCheck)(implicit executionContext: ExecutionContext) {
 
   private val watcher = FileSystems.getDefault.newWatchService
   private val initialPaths = registerAll(parentDirectory)
@@ -72,6 +73,10 @@ class FileWatcher(parentDirectory: Path, fileCheck: FileCheck) {
 
   private def runFileChecks(path: Path): Unit = {
     val fileId = UUID.fromString(path.getFileName.toString)
-    fileCheck.check(fileId)
+
+    // Log any errors returned by the file check, then ignore them to allow the watcher to keep running
+    fileCheck.check(fileId).recover(error => {
+      println(s"Error saving antivirus result for path '$path'", error)
+    })
   }
 }
