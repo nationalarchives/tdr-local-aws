@@ -16,18 +16,18 @@ import scala.jdk.CollectionConverters._
 
 object FakeBackendChecker extends App {
 
-  // TODO: Move API URL to config
-  private val apiUrl = "http://localhost:8080/graphql"
+  private val config = ConfigFactory.load
+
+  private val apiUrl = config.getString("api.baseUrl")
   private val getDocumentClient = new GraphQLClient[getClientFileMetadata.Data, getClientFileMetadata.Variables](apiUrl)
 
-  val config = ConfigFactory.load
-  val tokenService = new TokenService(config)
-  val antivirusChecker = new AntivirusChecker(tokenService, getDocumentClient)
+  private val tokenService = new TokenService(config)
+  private val antivirusChecker = new AntivirusChecker(tokenService, getDocumentClient)
 
-  val parentDirectory = Paths.get("/tmp/test-data")
-  val watcher = FileSystems.getDefault.newWatchService
+  private val parentDirectory = Paths.get("/tmp/test-data")
+  private val watcher = FileSystems.getDefault.newWatchService
 
-  val initialPaths = registerAll(parentDirectory)
+  private val initialPaths = registerAll(parentDirectory)
 
   monitorChanges(initialPaths)
 
