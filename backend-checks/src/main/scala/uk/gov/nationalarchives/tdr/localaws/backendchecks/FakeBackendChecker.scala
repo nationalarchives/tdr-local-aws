@@ -4,7 +4,8 @@ import java.nio.file.StandardWatchEventKinds.ENTRY_CREATE
 import java.nio.file._
 import java.nio.file.attribute.BasicFileAttributes
 
-import com.typesafe.config.{Config, ConfigFactory}
+import com.typesafe.config.ConfigFactory
+import uk.gov.nationalarchives.tdr.localaws.backendchecks.auth.TokenService
 import uk.gov.nationalarchives.tdr.localaws.backendchecks.checks.AntivirusChecker
 
 import scala.collection.mutable
@@ -13,8 +14,9 @@ import scala.jdk.CollectionConverters._
 
 object FakeBackendChecker extends App {
 
-  val config: Config = ConfigFactory.load
-  val antivirusChecker = new AntivirusChecker(config)
+  val config = ConfigFactory.load
+  val tokenService = new TokenService(config)
+  val antivirusChecker = new AntivirusChecker(tokenService)
 
   val parentDirectory = Paths.get("/tmp/test-data")
   val watcher = FileSystems.getDefault.newWatchService
