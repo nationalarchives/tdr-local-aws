@@ -1,7 +1,7 @@
 package uk.gov.nationalarchives.tdr.localaws.backendchecks.checks
 
-import java.nio.file.Path
+import java.util.UUID
 
 trait FileCheck {
-  def check(path: Path): Unit
+  def check(fileId: UUID): Unit
 }

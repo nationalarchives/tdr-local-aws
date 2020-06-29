@@ -3,6 +3,7 @@ package uk.gov.nationalarchives.tdr.localaws.backendchecks
 import java.nio.file.StandardWatchEventKinds.ENTRY_CREATE
 import java.nio.file._
 import java.nio.file.attribute.BasicFileAttributes
+import java.util.UUID
 
 import uk.gov.nationalarchives.tdr.localaws.backendchecks.checks.FileCheck
 
@@ -69,5 +70,8 @@ class FileWatcher(parentDirectory: Path, fileCheck: FileCheck) {
     monitorChanges(updatedPaths)
   }
 
-  private def runFileChecks(path: Path): Unit = fileCheck.check(path)
+  private def runFileChecks(path: Path): Unit = {
+    val fileId = UUID.fromString(path.getFileName.toString)
+    fileCheck.check(fileId)
+  }
 }

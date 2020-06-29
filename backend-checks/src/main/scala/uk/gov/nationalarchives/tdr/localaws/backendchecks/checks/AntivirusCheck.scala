@@ -1,6 +1,5 @@
 package uk.gov.nationalarchives.tdr.localaws.backendchecks.checks
 
-import java.nio.file.Path
 import java.util.UUID
 
 import graphql.codegen.GetClientFileMetadata.getClientFileMetadata
@@ -13,12 +12,9 @@ class AntivirusCheck(
                         tokenService: TokenService,
                         getDocumentClient: GraphQLClient[getClientFileMetadata.Data, getClientFileMetadata.Variables]
                       )(implicit val executionContext: ExecutionContext) extends FileCheck {
-  // TODO: Pass fileId rather than path
   // TODO: Return Future
-  def check(path: Path): Unit = {
-    println(s"Getting file with path $path")
-
-    val fileId = UUID.fromString(path.getFileName.toString)
+  def check(fileId: UUID): Unit = {
+    println(s"Getting file with ID $fileId")
 
     tokenService.token.map(token => {
       println("Got token: ")
