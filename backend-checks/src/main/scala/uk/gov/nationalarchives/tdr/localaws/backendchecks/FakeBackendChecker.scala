@@ -5,6 +5,8 @@ import java.nio.file._
 import java.nio.file.attribute.BasicFileAttributes
 
 import com.typesafe.config.ConfigFactory
+import graphql.codegen.GetClientFileMetadata.getClientFileMetadata
+import uk.gov.nationalarchives.tdr.GraphQLClient
 import uk.gov.nationalarchives.tdr.localaws.backendchecks.auth.TokenService
 import uk.gov.nationalarchives.tdr.localaws.backendchecks.checks.AntivirusChecker
 
@@ -14,9 +16,13 @@ import scala.jdk.CollectionConverters._
 
 object FakeBackendChecker extends App {
 
+  // TODO: Move API URL to config
+  private val apiUrl = "http://localhost:8080/graphql"
+  private val getDocumentClient = new GraphQLClient[getClientFileMetadata.Data, getClientFileMetadata.Variables](apiUrl)
+
   val config = ConfigFactory.load
   val tokenService = new TokenService(config)
-  val antivirusChecker = new AntivirusChecker(tokenService)
+  val antivirusChecker = new AntivirusChecker(tokenService, getDocumentClient)
 
   val parentDirectory = Paths.get("/tmp/test-data")
   val watcher = FileSystems.getDefault.newWatchService

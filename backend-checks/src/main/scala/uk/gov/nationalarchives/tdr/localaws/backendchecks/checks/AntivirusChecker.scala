@@ -3,18 +3,16 @@ package uk.gov.nationalarchives.tdr.localaws.backendchecks.checks
 import java.nio.file.Path
 import java.util.UUID
 
-import graphql.codegen.GetClientFileMetadata
+import graphql.codegen.GetClientFileMetadata.getClientFileMetadata
 import uk.gov.nationalarchives.tdr.GraphQLClient
 import uk.gov.nationalarchives.tdr.localaws.backendchecks.auth.TokenService
 
 import scala.concurrent.ExecutionContext
 
-class AntivirusChecker(tokenService: TokenService)(implicit val executionContext: ExecutionContext) {
-  // TODO: Move API URL to config
-  private val apiUrl = "http://localhost:8080/graphql"
-  private val getMetadataType = GetClientFileMetadata.getClientFileMetadata
-  private val getDocumentClient = new GraphQLClient[getMetadataType.Data, getMetadataType.Variables](apiUrl)
-
+class AntivirusChecker(
+                        tokenService: TokenService,
+                        getDocumentClient: GraphQLClient[getClientFileMetadata.Data, getClientFileMetadata.Variables]
+                      )(implicit val executionContext: ExecutionContext) {
   // TODO: Pass fileId rather than path
   // TODO: Return Future
   def check(path: Path): Unit = {
@@ -26,9 +24,9 @@ class AntivirusChecker(tokenService: TokenService)(implicit val executionContext
       println("Got token: ")
       println(token)
 
-      val queryVariables = getMetadataType.Variables(fileId)
+      val queryVariables = getClientFileMetadata.Variables(fileId)
 
-      getDocumentClient.getResult(token, getMetadataType.document, Some(queryVariables)).map(response => {
+      getDocumentClient.getResult(token, getClientFileMetadata.document, Some(queryVariables)).map(response => {
         println("Response:")
         println(response.data)
         println(response.errors)
