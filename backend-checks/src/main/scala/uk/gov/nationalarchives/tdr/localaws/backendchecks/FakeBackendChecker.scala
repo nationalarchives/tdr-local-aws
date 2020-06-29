@@ -4,10 +4,14 @@ import java.nio.file.StandardWatchEventKinds.ENTRY_CREATE
 import java.nio.file._
 import java.nio.file.attribute.BasicFileAttributes
 
+import uk.gov.nationalarchives.tdr.localaws.backendchecks.checks.AntivirusChecker
+
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
 object FakeBackendChecker extends App {
+
+  val antivirusChecker = new AntivirusChecker
 
   val parentDirectory = Paths.get("/tmp/test-data")
   val watcher = FileSystems.getDefault.newWatchService
@@ -17,7 +21,7 @@ object FakeBackendChecker extends App {
   monitorChanges(initialPaths)
 
   def runFileChecks(path: Path): Unit = {
-    println(s"Placeholder for file checks on path $path")
+    antivirusChecker.check(path)
   }
 
   def registerAll(start: Path): Map[WatchKey, Path] = {
