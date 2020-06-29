@@ -9,10 +9,10 @@ import uk.gov.nationalarchives.tdr.localaws.backendchecks.auth.TokenService
 
 import scala.concurrent.ExecutionContext
 
-class AntivirusChecker(
+class AntivirusCheck(
                         tokenService: TokenService,
                         getDocumentClient: GraphQLClient[getClientFileMetadata.Data, getClientFileMetadata.Variables]
-                      )(implicit val executionContext: ExecutionContext) {
+                      )(implicit val executionContext: ExecutionContext) extends FileCheck {
   // TODO: Pass fileId rather than path
   // TODO: Return Future
   def check(path: Path): Unit = {
