@@ -20,8 +20,7 @@ object FakeBackendChecker extends App {
   private val tokenService = new TokenService(config)
   private val antivirusChecker = new AntivirusCheck(tokenService, getDocumentClient)
 
-  // TODO: Move to config
-  private val parentDirectory = Paths.get("/tmp/test-data")
+  private val parentDirectory = Paths.get(config.getString("files.s3UploadDirectory"))
 
   private val fileWatcher = new FileWatcher(parentDirectory, antivirusChecker)
   fileWatcher.watchDirectory
