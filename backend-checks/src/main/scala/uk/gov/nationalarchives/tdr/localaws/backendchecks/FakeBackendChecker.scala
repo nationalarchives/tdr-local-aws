@@ -3,6 +3,7 @@ package uk.gov.nationalarchives.tdr.localaws.backendchecks
 import java.nio.file._
 
 import com.typesafe.config.ConfigFactory
+import graphql.codegen.AddAntivirusMetadata.AddAntivirusMetadata
 import graphql.codegen.GetClientFileMetadata.getClientFileMetadata
 import uk.gov.nationalarchives.tdr.GraphQLClient
 import uk.gov.nationalarchives.tdr.localaws.backendchecks.auth.TokenService
@@ -16,9 +17,10 @@ object FakeBackendChecker extends App {
 
   private val apiUrl = config.getString("api.baseUrl")
   private val getDocumentClient = new GraphQLClient[getClientFileMetadata.Data, getClientFileMetadata.Variables](apiUrl)
+  private val antivirusClient = new GraphQLClient[AddAntivirusMetadata.Data, AddAntivirusMetadata.Variables](apiUrl)
 
   private val tokenService = new TokenService(config)
-  private val antivirusChecker = new AntivirusCheck(tokenService, getDocumentClient)
+  private val antivirusChecker = new AntivirusCheck(tokenService, getDocumentClient, antivirusClient)
 
   private val parentDirectory = Paths.get(config.getString("files.s3UploadDirectory"))
 
