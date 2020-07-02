@@ -16,6 +16,9 @@ class AntivirusCheck(
                         antivirusClient: GraphQLClient[AddAntivirusMetadata.Data, AddAntivirusMetadata.Variables]
                       )(implicit val executionContext: ExecutionContext) extends FileCheck {
 
+  private val eicarPattern = "($eicar)".r
+  private val virusPattern = "(test-virus)".r
+
   def check(fileId: UUID): Future[Any] = {
     tokenService.token.flatMap(token => {
       val queryVariables = getClientFileMetadata.Variables(fileId)
@@ -27,8 +30,13 @@ class AntivirusCheck(
           case None => throw new RuntimeException("Error in GraphQL response")
         }
 
+        val result = originalPath match {
+          case eicarPattern(_) => "SUSP_Just_EICAR"
+          case virusPattern(_) => "test_virus"
+          case _ => ""
+        }
+
         val antivirusSoftware = "fake-local-antivirus"
-        val result = "fake-antivirus-result"
         val fakeVersion = "1.0"
         val fakeDate = 123l
         val input = AddAntivirusMetadataInput(
