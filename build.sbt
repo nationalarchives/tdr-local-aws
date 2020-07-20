@@ -25,6 +25,6 @@ lazy val backendChecks = (project in file("backend-checks"))
       "com.typesafe" % "config" % "1.4.0",
       "uk.gov.nationalarchives" %% "tdr-auth-utils" % "0.0.18",
       "uk.gov.nationalarchives" %% "tdr-graphql-client" % "0.0.13",
-      "uk.gov.nationalarchives" %% "tdr-generated-graphql" % "0.0.54.1-SNAPSHOT"
+      "uk.gov.nationalarchives" %% "tdr-generated-graphql" % "0.0.55"
     )
   )
