@@ -26,8 +26,7 @@ class AntivirusCheck(
       getDocumentClient.getResult(token, getOriginalPath.document, Some(queryVariables)).flatMap(data => {
         val originalPath = data.data match {
           case Some(metadata) => metadata.getClientFileMetadata.originalPath.get
-          // TODO: Include original errors
-          case None => throw new RuntimeException("Error in GraphQL response")
+          case None => throw new RuntimeException(s"Error in GraphQL response: ${data.errors}")
         }
 
         val result = originalPath match {
