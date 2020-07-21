@@ -1,5 +1,6 @@
 package uk.gov.nationalarchives.tdr.localaws.backendchecks.checks
 
+import java.time.{Instant, LocalDateTime}
 import java.util.UUID
 
 import graphql.codegen.GetOriginalPath.getOriginalPath
@@ -37,7 +38,7 @@ class AntivirusCheck(
 
         val antivirusSoftware = "fake-local-antivirus"
         val fakeVersion = "1.0"
-        val fakeDate = 123l
+        val fakeDate = Instant.now()
         val input = AddAntivirusMetadataInput(
           fileId,
           Some(antivirusSoftware),
@@ -45,7 +46,7 @@ class AntivirusCheck(
           Some(fakeVersion),
           Some(fakeVersion),
           Some(result),
-          fakeDate
+          fakeDate.toEpochMilli
         )
         val mutationVariables = AddAntivirusMetadata.Variables(input)
         antivirusClient.getResult(token, AddAntivirusMetadata.document, Some(mutationVariables))

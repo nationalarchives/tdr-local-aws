@@ -14,6 +14,8 @@ import scala.util.{Failure, Success, Try}
 
 class FileWatcher(parentDirectory: Path, fileCheck: FileCheck)(implicit executionContext: ExecutionContext) {
 
+  private val UuidLength = 36
+
   private val watcher = FileSystems.getDefault.newWatchService
   private val initialPaths = registerAll(parentDirectory)
 
@@ -73,7 +75,7 @@ class FileWatcher(parentDirectory: Path, fileCheck: FileCheck)(implicit executio
   }
 
   private def runFileChecks(path: Path): Unit = {
-    Try(UUID.fromString(path.getFileName.toString)) match {
+    extractFileId(path) match {
       case Success(fileId) => {
         // Log any errors returned by the file check, then ignore them to allow the watcher to keep running
         fileCheck.check(fileId).recover(error => {
@@ -85,5 +87,17 @@ class FileWatcher(parentDirectory: Path, fileCheck: FileCheck)(implicit executio
       case Failure(e) =>
         println(s"Error extracting file ID from path '$path'", e)
     }
+  }
+
+  private def extractFileId(path: Path): Try[UUID] = {
+    val fileName = path.getFileName.toString
+    if (fileName.length < UuidLength) {
+      return Failure(new IllegalArgumentException(s"Path '$path' is too short to contain a valid UUID"))
+    }
+
+    // S3Ninja does not store S3 folders as filesystem folders. Instead it puts underscores between the folder
+    // name and the filename, so we have to extract the last 36 digits of the filename to get the filename
+    // that would have been saved to S3.
+    Try(UUID.fromString(path.getFileName.toString.takeRight(UuidLength)))
   }
 }
