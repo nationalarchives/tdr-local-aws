@@ -10,6 +10,7 @@ import uk.gov.nationalarchives.tdr.localaws.backendchecks.checks.FileCheck
 import scala.collection.mutable
 import scala.concurrent.ExecutionContext
 import scala.jdk.CollectionConverters._
+import scala.util.{Failure, Success, Try}
 
 class FileWatcher(parentDirectory: Path, fileCheck: FileCheck)(implicit executionContext: ExecutionContext) {
 
@@ -72,11 +73,17 @@ class FileWatcher(parentDirectory: Path, fileCheck: FileCheck)(implicit executio
   }
 
   private def runFileChecks(path: Path): Unit = {
-    val fileId = UUID.fromString(path.getFileName.toString)
-
-    // Log any errors returned by the file check, then ignore them to allow the watcher to keep running
-    fileCheck.check(fileId).recover(error => {
-      println(s"Error saving antivirus result for path '$path'", error)
-    })
+    Try(UUID.fromString(path.getFileName.toString)) match {
+      case Success(fileId) => {
+        // Log any errors returned by the file check, then ignore them to allow the watcher to keep running
+        fileCheck.check(fileId).recover(error => {
+          println(s"Error saving antivirus result for path '$path'", error)
+        })
+      }
+      case Failure(e: IllegalArgumentException) =>
+        println(s"Filename at path '$path' is not a UUID, so skipping file checks")
+      case Failure(e) =>
+        println(s"Error extracting file ID from path '$path'", e)
+    }
   }
 }
