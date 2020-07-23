@@ -1,10 +1,10 @@
 package uk.gov.nationalarchives.tdr.localaws.backendchecks.checks
 
-import java.time.{Instant, LocalDateTime}
+import java.time.Instant
 import java.util.UUID
 
-import graphql.codegen.GetOriginalPath.getOriginalPath
 import graphql.codegen.AddAntivirusMetadata.AddAntivirusMetadata
+import graphql.codegen.GetOriginalPath.getOriginalPath
 import graphql.codegen.types.AddAntivirusMetadataInput
 import uk.gov.nationalarchives.tdr.GraphQLClient
 import uk.gov.nationalarchives.tdr.localaws.backendchecks.auth.TokenService
@@ -30,27 +30,32 @@ class AntivirusCheck(
           case None => throw new RuntimeException(s"Error in GraphQL response: ${data.errors}")
         }
 
-        val result = originalPath match {
-          case eicarPattern(_) => "SUSP_Just_EICAR"
-          case virusPattern(_) => "test_virus"
-          case _ => ""
-        }
-
-        val antivirusSoftware = "fake-local-antivirus"
-        val fakeVersion = "1.0"
-        val fakeDate = Instant.now()
-        val input = AddAntivirusMetadataInput(
-          fileId,
-          Some(antivirusSoftware),
-          Some(result),
-          Some(fakeVersion),
-          Some(fakeVersion),
-          Some(result),
-          fakeDate.toEpochMilli
-        )
-        val mutationVariables = AddAntivirusMetadata.Variables(input)
+        val metadataMutationInput = antivirusMetadata(fileId, originalPath)
+        val mutationVariables = AddAntivirusMetadata.Variables(metadataMutationInput)
         antivirusClient.getResult(token, AddAntivirusMetadata.document, Some(mutationVariables))
       })
     })
+  }
+
+  private def antivirusMetadata(fileId: UUID, originalPath: String): AddAntivirusMetadataInput = {
+    val result = originalPath match {
+      case eicarPattern(_) => "SUSP_Just_EICAR"
+      case virusPattern(_) => "test_virus"
+      case _ => ""
+    }
+
+    val antivirusSoftware = "fake-local-antivirus"
+    val fakeVersion = "1.0"
+    val fakeDate = Instant.now()
+
+    AddAntivirusMetadataInput(
+      fileId,
+      Some(antivirusSoftware),
+      Some(result),
+      Some(fakeVersion),
+      Some(fakeVersion),
+      Some(result),
+      fakeDate.toEpochMilli
+    )
   }
 }
