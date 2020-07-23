@@ -1,5 +1,6 @@
 package uk.gov.nationalarchives.tdr.localaws.backendchecks.checks
 
+import java.nio.file.{Path, Paths}
 import java.time.Instant
 import java.util.UUID
 
@@ -17,8 +18,8 @@ class AntivirusCheck(
                         antivirusClient: GraphQLClient[AddAntivirusMetadata.Data, AddAntivirusMetadata.Variables]
                       )(implicit val executionContext: ExecutionContext) extends FileCheck {
 
-  private val eicarPattern = "($eicar)".r
-  private val virusPattern = "(test-virus)".r
+  private val eicarPattern = "(eicar).*".r
+  private val virusPattern = "(test-virus).*".r
 
   def check(fileId: UUID): Future[Any] = {
     tokenService.token.flatMap(token => {
@@ -26,7 +27,7 @@ class AntivirusCheck(
 
       getDocumentClient.getResult(token, getOriginalPath.document, Some(queryVariables)).flatMap(data => {
         val originalPath = data.data match {
-          case Some(metadata) => metadata.getClientFileMetadata.originalPath.get
+          case Some(metadata) => Paths.get(metadata.getClientFileMetadata.originalPath.get)
           case None => throw new RuntimeException(s"Error in GraphQL response: ${data.errors}")
         }
 
@@ -37,8 +38,8 @@ class AntivirusCheck(
     })
   }
 
-  private def antivirusMetadata(fileId: UUID, originalPath: String): AddAntivirusMetadataInput = {
-    val result = originalPath match {
+  private def antivirusMetadata(fileId: UUID, originalPath: Path): AddAntivirusMetadataInput = {
+    val result = originalPath.getFileName.toString match {
       case eicarPattern(_) => "SUSP_Just_EICAR"
       case virusPattern(_) => "test_virus"
       case _ => ""
