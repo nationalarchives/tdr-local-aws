@@ -20,7 +20,6 @@ sbt localCognito/run
 
 Or run the `FakeCognitoServer` object from IntelliJ.
 
-It runs on port 4600. This is not currently configurable, but could be made
-configurable if necessary.
+By default, the app runs on port 4600.
 
 [S3 ninja]: https://s3ninja.net/
