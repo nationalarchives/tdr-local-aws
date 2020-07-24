@@ -22,16 +22,19 @@ class FileWatcher(parentDirectory: Path, fileCheck: FileCheck)(implicit executio
 
     Files.walkFileTree(start, new SimpleFileVisitor[Path] {
       override def preVisitDirectory(directory: Path, attrs: BasicFileAttributes): FileVisitResult = {
-        println(s"Registering directory $directory")
-
-        val watchKey = directory.register(watcher, ENTRY_CREATE)
-        pathsByKey(watchKey) = directory
-
+        registerDirectory(directory, pathsByKey)
         FileVisitResult.CONTINUE
       }
     })
 
     pathsByKey.toMap
+  }
+
+  private def registerDirectory(directory: Path, pathsByKey: mutable.Map[WatchKey, Path]): Unit = {
+    println(s"Registering directory $directory")
+
+    val watchKey = directory.register(watcher, ENTRY_CREATE)
+    pathsByKey(watchKey) = directory
   }
 
   @scala.annotation.tailrec
@@ -48,19 +51,10 @@ class FileWatcher(parentDirectory: Path, fileCheck: FileCheck)(implicit executio
 
       if (Files.isDirectory(fullPath)) {
         val newPaths = registerAll(fullPath)
-
-        Files.walkFileTree(fullPath, new SimpleFileVisitor[Path] {
-          override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
-            fileCheck.checkPath(file)
-
-            FileVisitResult.CONTINUE
-          }
-        })
-
+        checkFilesInDirectory(fullPath)
         currentPaths ++ newPaths
       } else {
         fileCheck.checkPath(fullPath)
-
         currentPaths
       }
     }).toMap
@@ -68,5 +62,15 @@ class FileWatcher(parentDirectory: Path, fileCheck: FileCheck)(implicit executio
     watchKey.reset()
 
     monitorChanges(updatedPaths)
+  }
+
+  def checkFilesInDirectory(directory: Path): Unit = {
+    Files.walkFileTree(directory, new SimpleFileVisitor[Path] {
+      override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
+        fileCheck.checkPath(file)
+
+        FileVisitResult.CONTINUE
+      }
+    })
   }
 }
