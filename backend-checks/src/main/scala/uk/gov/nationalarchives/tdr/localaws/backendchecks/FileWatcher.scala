@@ -10,7 +10,7 @@ import scala.collection.mutable
 import scala.concurrent.ExecutionContext
 import scala.jdk.CollectionConverters._
 
-class FileWatcher(parentDirectory: Path, fileCheck: FileCheck)(implicit executionContext: ExecutionContext) {
+class FileWatcher(parentDirectory: Path, fileChecks: Seq[FileCheck])(implicit executionContext: ExecutionContext) {
 
   private val watcher: WatchService = FileSystems.getDefault.newWatchService
   private val initialPaths: Map[WatchKey, Path] = registerAll(parentDirectory)
@@ -54,7 +54,7 @@ class FileWatcher(parentDirectory: Path, fileCheck: FileCheck)(implicit executio
         checkFilesInDirectory(fullPath)
         currentPaths ++ newPaths
       } else {
-        fileCheck.checkPath(fullPath)
+        fileChecks.foreach(_.checkPath(fullPath))
         currentPaths
       }
     }).toMap
@@ -67,7 +67,7 @@ class FileWatcher(parentDirectory: Path, fileCheck: FileCheck)(implicit executio
   def checkFilesInDirectory(directory: Path): Unit = {
     Files.walkFileTree(directory, new SimpleFileVisitor[Path] {
       override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
-        fileCheck.checkPath(file)
+        fileChecks.foreach(_.checkPath(file))
 
         FileVisitResult.CONTINUE
       }
