@@ -83,7 +83,7 @@ class FileWatcher(parentDirectory: Path, fileCheck: FileCheck)(implicit executio
         })
       }
       case Failure(e: IllegalArgumentException) =>
-        println(s"Filename at path '$path' is not a UUID, so skipping file checks")
+        println(s"Filename at path '$path' does not end in a UUID, so skipping file checks")
       case Failure(e) =>
         println(s"Error extracting file ID from path '$path'", e)
     }
