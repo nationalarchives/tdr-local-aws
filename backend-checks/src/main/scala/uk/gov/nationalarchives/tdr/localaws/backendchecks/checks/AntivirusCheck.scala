@@ -21,7 +21,7 @@ class AntivirusCheck(
   private val eicarPattern = "(eicar).*".r
   private val virusPattern = "(test-virus).*".r
 
-  def check(fileId: UUID): Future[Any] = {
+  def checkFileId(fileId: UUID): Future[Any] = {
     tokenService.token.flatMap(token => {
       val queryVariables = getOriginalPath.Variables(fileId)
 

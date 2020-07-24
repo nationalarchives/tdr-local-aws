@@ -25,5 +25,5 @@ object FakeBackendChecker extends App {
   private val parentDirectory = Paths.get(config.getString("files.s3UploadDirectory"))
 
   private val fileWatcher = new FileWatcher(parentDirectory, antivirusChecker)
-  fileWatcher.watchDirectory
+  fileWatcher.startWatching
 }
