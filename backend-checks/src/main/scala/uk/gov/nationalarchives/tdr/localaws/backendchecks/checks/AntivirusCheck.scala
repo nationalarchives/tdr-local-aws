@@ -8,6 +8,7 @@ import graphql.codegen.AddAntivirusMetadata.AddAntivirusMetadata
 import graphql.codegen.GetOriginalPath.getOriginalPath
 import graphql.codegen.types.AddAntivirusMetadataInput
 import uk.gov.nationalarchives.tdr.GraphQLClient
+import uk.gov.nationalarchives.tdr.localaws.backendchecks.api.GraphQl.sendGraphQlRequest
 import uk.gov.nationalarchives.tdr.localaws.backendchecks.auth.TokenService
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -21,19 +22,19 @@ class AntivirusCheck(
   private val eicarPattern = "(eicar).*".r
   private val virusPattern = "(test-virus).*".r
 
-  def checkFileId(fileId: UUID): Future[Any] = {
+  override def checkName: String = "antivirus"
+
+  override def checkFileId(fileId: UUID): Future[Any] = {
     tokenService.token.flatMap(token => {
       val queryVariables = getOriginalPath.Variables(fileId)
 
-      getDocumentClient.getResult(token, getOriginalPath.document, Some(queryVariables)).flatMap(data => {
-        val originalPath = data.data match {
-          case Some(metadata) => Paths.get(metadata.getClientFileMetadata.originalPath.get)
-          case None => throw new RuntimeException(s"Error in GraphQL response: ${data.errors}")
-        }
+      sendGraphQlRequest(getDocumentClient, token, queryVariables, getOriginalPath.document).map(result => {
+        val originalPath = Paths.get(result.getClientFileMetadata.originalPath.get)
 
         val metadataMutationInput = antivirusMetadata(fileId, originalPath)
         val mutationVariables = AddAntivirusMetadata.Variables(metadataMutationInput)
-        antivirusClient.getResult(token, AddAntivirusMetadata.document, Some(mutationVariables))
+
+        sendGraphQlRequest(antivirusClient, token, mutationVariables, AddAntivirusMetadata.document)
       })
     })
   }

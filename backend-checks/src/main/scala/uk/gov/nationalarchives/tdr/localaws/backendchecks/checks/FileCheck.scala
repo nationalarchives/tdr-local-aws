@@ -12,16 +12,17 @@ trait FileCheck {
 
   def checkFileId(fileId: UUID): Future[Any]
 
+  def checkName: String
+
   def checkPath(path: Path)(implicit executionContext: ExecutionContext): Unit = {
     extractFileId(path) match {
       case Success(fileId) => {
         // Log any errors returned by the file check, then ignore them to allow the watcher to keep running
         checkFileId(fileId).recover(error => {
-          // TODO: Make error message generic
-          println(s"Error saving antivirus result for path '$path'", error)
+          println(s"Error running $checkName check for file with path '$path' and ID '$fileId'", error)
         })
       }
-      case Failure(e: IllegalArgumentException) =>
+      case Failure(_: IllegalArgumentException) =>
         println(s"Filename at path '$path' does not end in a UUID, so skipping file checks")
       case Failure(e) =>
         println(s"Error extracting file ID from path '$path'", e)
