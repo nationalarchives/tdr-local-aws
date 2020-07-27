@@ -17,6 +17,7 @@ trait FileCheck {
       case Success(fileId) => {
         // Log any errors returned by the file check, then ignore them to allow the watcher to keep running
         checkFileId(fileId).recover(error => {
+          // TODO: Make error message generic
           println(s"Error saving antivirus result for path '$path'", error)
         })
       }
