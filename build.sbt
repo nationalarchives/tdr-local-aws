@@ -13,6 +13,18 @@ lazy val localCognito = (project in file("cognito"))
       "de.heikoseeberger" %% "akka-http-circe" % "1.32.0",
       "io.circe" %% "circe-core" % circeVersion,
       "io.circe" %% "circe-generic" % circeVersion,
-      "io.circe" %% "circe-parser" % circeVersion
+      "io.circe" %% "circe-parser" % circeVersion,
+    )
+  )
+
+lazy val backendChecks = (project in file("backend-checks"))
+  .settings(
+    name := "tdr-local-backend-checks",
+    resolvers += "TDR Releases" at "s3://tdr-releases-mgmt",
+    libraryDependencies ++= Seq(
+      "com.typesafe" % "config" % "1.4.0",
+      "uk.gov.nationalarchives" %% "tdr-auth-utils" % "0.0.18",
+      "uk.gov.nationalarchives" %% "tdr-graphql-client" % "0.0.13",
+      "uk.gov.nationalarchives" %% "tdr-generated-graphql" % "0.0.55"
     )
   )
