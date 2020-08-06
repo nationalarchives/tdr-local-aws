@@ -9,6 +9,7 @@ import uk.gov.nationalarchives.tdr.localaws.backendchecks.checks.FileCheck
 import scala.collection.mutable
 import scala.concurrent.ExecutionContext
 import scala.jdk.CollectionConverters._
+import scala.util.{Failure, Success}
 
 class FileWatcher(parentDirectory: Path, fileChecks: Seq[FileCheck])(implicit executionContext: ExecutionContext) {
 
@@ -54,7 +55,7 @@ class FileWatcher(parentDirectory: Path, fileChecks: Seq[FileCheck])(implicit ex
         checkFilesInDirectory(fullPath)
         currentPaths ++ newPaths
       } else {
-        fileChecks.foreach(_.checkPath(fullPath))
+        runChecks(fullPath)
         currentPaths
       }
     }).toMap
@@ -67,10 +68,24 @@ class FileWatcher(parentDirectory: Path, fileChecks: Seq[FileCheck])(implicit ex
   def checkFilesInDirectory(directory: Path): Unit = {
     Files.walkFileTree(directory, new SimpleFileVisitor[Path] {
       override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
-        fileChecks.foreach(_.checkPath(file))
-
+        runChecks(file)
         FileVisitResult.CONTINUE
       }
     })
+  }
+
+  def runChecks(filePath: Path): () = {
+    LocalFilePaths.extractFileId(filePath) match {
+      case Success(fileId) => {
+        // Log any errors returned by the file check, then ignore them to allow the watcher to keep running
+        fileChecks.foreach(fileCheck => {
+          fileCheck.checkFile(fileId).recover(error => {
+            println(s"Error running ${fileCheck.name} check for file with path '$filePath' and ID '$fileId'", error)
+          })
+        })
+      }
+      case Failure(e) =>
+        println(s"Error extracting file ID from path '$filePath', so skipping file check", e)
+    }
   }
 }
