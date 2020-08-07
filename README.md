@@ -33,8 +33,8 @@ Unlike the real file checks, which run antivirus scans and perform real checksum
 calculations, the fake checker generates fake results based on just the original
 filename.
 
-It currently only runs a fake virus scan, but will be updated to support checksum and
-file format ID checks.
+It currently only runs a fake virus scan and checksum, but will be updated to
+support file format ID checks.
 
 ### Configure local Keycloak
 
@@ -75,8 +75,9 @@ Or run the `FakeBackendChecker` object from IntelliJ.
 
 Fake file checks generate their results based on the filenames
 
-| Filename pattern | Examples                   | Antivirus result       |
-| ---------------- | -------------------------- | ---------------------- |
-| *                | example.txt, stuff.doc     | Success (empty string) |
-| eicar*           | eicar, eicar123.exe        | `SUSP_Just_EICAR`      |
-| test-virus*      | test-virus, test-virus.txt | `test_virus`           |
+| Filename pattern | Examples                                     | Antivirus result       | Checksum result                                       |
+| ---------------- | -------------------------------------------- | ---------------------- | ----------------------------------------------------- |
+| *                | example.txt, stuff.doc                       | Success (empty string) | `fake-checksum`                                       |
+| eicar*           | eicar, eicar123.exe                          | `SUSP_Just_EICAR`      | `fake-checksum`                                       |
+| test-virus*      | test-virus, test-virus.txt                   | `test_virus`           | `fake-checksum`                                       |
+| test-checksum-*  | test-checksum-abcde, test-checksum-abcde.doc | Success (empty string) | `abcde` (or whatever was appended to `test-checksum-` |
