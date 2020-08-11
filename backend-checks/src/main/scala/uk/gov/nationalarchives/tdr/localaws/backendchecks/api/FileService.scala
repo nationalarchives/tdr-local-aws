@@ -8,7 +8,8 @@ import com.nimbusds.oauth2.sdk.token.BearerAccessToken
 import graphql.codegen.AddAntivirusMetadata.AddAntivirusMetadata
 import graphql.codegen.AddFileMetadata.addFileMetadata
 import graphql.codegen.GetOriginalPath.getOriginalPath
-import graphql.codegen.types.{AddAntivirusMetadataInput, AddFileMetadataInput}
+import graphql.codegen.AddFFIDMetadata.addFFIDMetadata
+import graphql.codegen.types.{AddAntivirusMetadataInput, AddFileMetadataInput, FFIDMetadataInput, FFIDMetadataInputMatches}
 import uk.gov.nationalarchives.tdr.GraphQLClient
 import uk.gov.nationalarchives.tdr.localaws.backendchecks.api.GraphQl.sendGraphQlRequest
 
@@ -17,7 +18,8 @@ import scala.concurrent.{ExecutionContext, Future}
 class FileService(
                    getDocumentClient: GraphQLClient[getOriginalPath.Data, getOriginalPath.Variables],
                    antivirusClient: GraphQLClient[AddAntivirusMetadata.Data, AddAntivirusMetadata.Variables],
-                   addMetadataClient: GraphQLClient[addFileMetadata.Data, addFileMetadata.Variables]
+                   addMetadataClient: GraphQLClient[addFileMetadata.Data, addFileMetadata.Variables],
+                   addFileFormatClient: GraphQLClient[addFFIDMetadata.Data, addFFIDMetadata.Variables]
                  ) {
 
   def originalFileName(fileId: UUID, token: BearerAccessToken)(implicit executionContext: ExecutionContext): Future[Path] = {
@@ -57,6 +59,32 @@ class FileService(
 
     sendGraphQlRequest(addMetadataClient, token, mutationVariables, addFileMetadata.document)
   }
+
+  def saveFileFormatResult(
+                            metadata: FileFormatMetadata,
+                            fileId: UUID, token: BearerAccessToken
+                          )(implicit executionContext: ExecutionContext): Future[addFFIDMetadata.Data] = {
+    val addMetadataInput = FFIDMetadataInput(
+      fileId,
+      metadata.software,
+      metadata.softwareVersion,
+      metadata.binarySignatureFileVersion,
+      metadata.containerSignatureFileVersion,
+      metadata.matchMethod,
+      metadata.matches
+    )
+    val mutationVariables = addFFIDMetadata.Variables(addMetadataInput)
+
+    sendGraphQlRequest(addFileFormatClient, token, mutationVariables, addFFIDMetadata.document)
+  }
 }
 
 case class AntivirusMetadata(software: String, result: String, version: String)
+case class FileFormatMetadata(
+                               software: String,
+                               softwareVersion: String,
+                               binarySignatureFileVersion: String,
+                               containerSignatureFileVersion: String,
+                               matchMethod: String,
+                               matches: List[FFIDMetadataInputMatches]
+                             )
