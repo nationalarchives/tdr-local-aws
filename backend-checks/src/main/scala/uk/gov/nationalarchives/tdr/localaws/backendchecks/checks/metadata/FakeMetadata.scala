@@ -2,7 +2,8 @@ package uk.gov.nationalarchives.tdr.localaws.backendchecks.checks.metadata
 
 import java.nio.file.Path
 
-import uk.gov.nationalarchives.tdr.localaws.backendchecks.api.AntivirusMetadata
+import graphql.codegen.types.FFIDMetadataInputMatches
+import uk.gov.nationalarchives.tdr.localaws.backendchecks.api.{AntivirusMetadata, FileFormatMetadata}
 
 object FakeAntivirusMetadata {
 
@@ -33,5 +34,42 @@ object FakeChecksum {
       case customChecksumPattern(customChecksum) => customChecksum
       case _ => defaultChecksum
     }
+  }
+}
+
+object FakeFileFormat {
+
+  private val noFileFormatPattern = "(test-fmt-none)(?:.*)".r
+  private val customFileFormatPattern = "test-fmt-(\\d+)(?:.*)".r
+  private val customFileExperimentalFormatPattern = "test-x-fmt-(\\d+)(?:.*)".r
+  private val textFilePronomId = "x-fmt/111"
+
+  def generate(originalFileName: Path): FileFormatMetadata = {
+    val extension = originalFileName.toString.split("\\.") match {
+      case parts if parts.size == 1 => None
+      case parts => Some(parts.last)
+    }
+
+    val pronomId = originalFileName.toString match {
+      case noFileFormatPattern(_) => None
+      case customFileFormatPattern(pronomId) => Some(s"fmt/$pronomId")
+      case customFileExperimentalFormatPattern(pronomId) => Some(s"x-fmt/$pronomId")
+      case _ => Some(textFilePronomId)
+    }
+
+    val formatMatch = FFIDMetadataInputMatches(
+      extension,
+      "fake-file-format-identification-basis",
+      pronomId
+    )
+
+    FileFormatMetadata(
+      "fake-file-format-software",
+      "fake-file-format-software-version",
+      "fake-binary-signature-file-version",
+      "fake-container-signature-file-version",
+      "fake-file-format-match-method",
+      List(formatMatch)
+    )
   }
 }
