@@ -26,7 +26,7 @@ object FakeAntivirusMetadata {
 
 object FakeChecksum {
 
-  private val customChecksumPattern = "test-checksum-(\\w*)(?:\\.\\w+)".r
+  private val customChecksumPattern = "test-checksum-(\\w*)(?:\\.\\w+)?".r
   private val defaultChecksum = "fake-checksum"
 
   def generate(originalFileName: Path): String = {
