@@ -11,7 +11,7 @@ pipeline {
     stage("Report build start") {
       steps {
         script {
-          tdr.reportStartOfBuildToGitHub(repo)
+          tdr.reportStartOfBuildToGitHub(repo, env.GIT_COMMIT)
         }
       }
     }
@@ -41,12 +41,12 @@ pipeline {
   post {
     failure {
       script {
-        tdr.reportFailedBuildToGitHub(repo)
+        tdr.reportFailedBuildToGitHub(repo, env.GIT_COMMIT)
       }
     }
     success {
       script {
-        tdr.reportSuccessfulBuildToGitHub(repo)
+        tdr.reportSuccessfulBuildToGitHub(repo, env.GIT_COMMIT)
       }
     }
   }
