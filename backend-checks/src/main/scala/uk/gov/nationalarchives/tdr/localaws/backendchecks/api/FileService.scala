@@ -37,11 +37,10 @@ class FileService(
                          )(implicit executionContext: ExecutionContext): Future[AddAntivirusMetadata.Data] = {
     val mutationInput = AddAntivirusMetadataInput(
       fileId,
-      Some(metadata.software),
-      Some(metadata.result),
-      Some(metadata.version),
-      Some(metadata.version),
-      Some(metadata.result),
+      metadata.software,
+      metadata.version,
+      metadata.version,
+      metadata.result,
       Instant.now().toEpochMilli
     )
     val mutationVariables = AddAntivirusMetadata.Variables(mutationInput)
