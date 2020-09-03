@@ -94,6 +94,5 @@ Fake file checks generate their results based on the filenames
 | eicar*           | eicar, eicar123.exe                          | `SUSP_Just_EICAR`      | `fake-checksum`                                       | `x-fmt/111`        |
 | test-virus*      | test-virus, test-virus.txt                   | `test_virus`           | `fake-checksum`                                       | `x-fmt/111`        |
 | test-checksum-*  | test-checksum-abcde, test-checksum-abcde.doc | Success (empty string) | `abcde` (or whatever was appended to `test-checksum-` | `x-fmt/111`        |
-| test-checksum-*  | test-checksum-abcde, test-checksum-abcde.doc | Success (empty string) | `abcde` (or whatever was appended to `test-checksum-` | `x-fmt/111`        |
 | test-fmt-*       | test-fmt-123, test-fmt-123.txt               | Success (empty string) | `fake-checksum`                                       | `fmt/123`          |
 | test-x-fmt-*     | test-x-fmt-456, test-x-fmt-456.txt           | Success (empty string) | `fake-checksum`                                       | `x-fmt/123`        |
