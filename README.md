@@ -5,6 +5,19 @@ This repo is part of the [Transfer Digital Records][tdr-docs] project.
 It emulates AWS services to allow us to build an entirely local development
 environment.
 
+The Cognito Identity Pool is replaced by a local fake Cognito server. The S3
+upload bucket is replaced by a local S3 emulator which stores files to the
+local file system. The backend check queues and lambdas are replaced by a
+single Scala service which monitors the file system for "uploaded" files.
+
+This diagram shows how the local development environment compares to the
+real AWS environments. Some components like the auth server and database have
+been omitted, because they are the same in both cases.
+
+![](./architecture.svg)
+
+Diagram source: https://app.lucidchart.com/documents/edit/a198205b-4c4a-4674-ac8a-d1495f785677
+
 [tdr-docs]: https://github.com/nationalarchives/tdr-dev-documentation/
 
 ## Local Cognito
