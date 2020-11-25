@@ -49,6 +49,18 @@ filename.
 It currently only runs a fake virus scan and checksum, but will be updated to
 support file format ID checks.
 
+## Local consignment export
+
+This is an akka app which takes a consignment id in the path and a user token in the authorisation header. 
+
+The app will verify that the user token is valid and is able to access the consignment id passed in the path.
+
+If the token is valid, it will call the local consignment api to update the consignment export location.
+
+If the user token is invalid, if the user is not allowed to get the consignment or if the consignment id is invalid, you will get an error.
+
+To run, either run `sbt localConsignmentExport/run` or run the `FakeConsignmentExportServer` object from IntelliJ. 
+
 ### Configure local Keycloak
 
 - In your local Keycloak server, create a new client called `tdr-backend-checks`
