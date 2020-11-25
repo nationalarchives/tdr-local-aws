@@ -25,13 +25,13 @@ Diagram source: https://app.lucidchart.com/documents/edit/a198205b-4c4a-4674-ac8
 The app runs an akka-http server which returns fake Cognito tokens that are
 accepted by [S3 ninja].
 
-To run the app from the command line, run:
+To run the app from the command line, set the environment variables ACCESS_KEY and SECRET_KEY to the values [here](https://github.com/scireum/s3ninja/blob/master/src/main/resources/application.conf#L34) and run
 
 ```
 sbt localCognito/run
 ```
 
-Or run the `FakeCognitoServer` object from IntelliJ.
+Or run the `FakeCognitoServer` object from IntelliJ with the environment variables set.
 
 By default, the app runs on port 4600.
 
