@@ -28,6 +28,7 @@ lazy val localConsignmentExport = (project in file("consignment-export"))
       "de.heikoseeberger" %% "akka-http-circe" % "1.32.0",
       "uk.gov.nationalarchives" %% "tdr-graphql-client" % "0.0.15",
       "uk.gov.nationalarchives" %% "tdr-generated-graphql" % "0.0.66",
+      "uk.gov.nationalarchives" %% "tdr-auth-utils" % "0.0.19",
       "io.circe" %% "circe-core" % circeVersion,
       "io.circe" %% "circe-generic" % circeVersion,
       "io.circe" %% "circe-parser" % circeVersion,

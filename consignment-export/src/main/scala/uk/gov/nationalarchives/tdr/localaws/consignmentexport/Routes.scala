@@ -15,9 +15,9 @@ import io.circe.syntax._
 import sttp.client.asynchttpclient.future.AsyncHttpClientFutureBackend
 import sttp.client.{NothingT, SttpBackend}
 import uk.gov.nationalarchives.tdr.GraphQLClient
-import scala.concurrent.duration._
+import uk.gov.nationalarchives.tdr.keycloak.KeycloakUtils
 
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.{ExecutionContext, Future}
 
 class Routes(config: Config)(implicit val executionContext: ExecutionContext) {
 
@@ -27,6 +27,10 @@ class Routes(config: Config)(implicit val executionContext: ExecutionContext) {
   val updateExportLocationClient = new GraphQLClient[uel.Data, uel.Variables](config.getString("api.baseUrl"))
 
   implicit val sttpBackend: SttpBackend[Future, Nothing, NothingT] = AsyncHttpClientFutureBackend()
+
+  private val keycloakUtils: KeycloakUtils = KeycloakUtils(config.getString("auth.baseUrl"))
+  private val clientId = config.getString("auth.client.id")
+  private val clientSecret = config.getString("auth.client.secret")
 
   def tokenAuthenticator(credentials: Credentials, consignmentId: UUID): Future[Option[BearerAccessToken]] = {
     credentials match {
@@ -42,13 +46,18 @@ class Routes(config: Config)(implicit val executionContext: ExecutionContext) {
     }
   }
 
+
   val route: Route = pathPrefix("export") {
     path(JavaUUID) { consignmentId =>
       val authenticator = tokenAuthenticator(_, consignmentId)
-      authenticateOAuth2Async("tdr", authenticator) { accessToken =>
-        Await.result(updateExportLocationClient.getResult(accessToken, uel.document, Option(uel.Variables(UpdateExportLocationInput(consignmentId, s"s3://fakeBucket/$consignmentId.tar.gz"))))
-          .map(_ => complete(Response("executionArn", new Date().getTime).asJson.noSpaces))
-          .recover(e => failWith(e)), 1.seconds)
+      authenticateOAuth2Async("tdr", authenticator) { _ =>
+        complete(
+          for {
+            token <- keycloakUtils.serviceAccountToken(clientId, clientSecret)
+            res <- updateExportLocationClient.getResult(token, uel.document, Option(uel.Variables(UpdateExportLocationInput(consignmentId, s"s3://fakeBucket/$consignmentId.tar.gz"))))
+              .map(_ => Response("executionArn", new Date().getTime).asJson.noSpaces)
+          } yield res
+        )
       }
     }
   }
