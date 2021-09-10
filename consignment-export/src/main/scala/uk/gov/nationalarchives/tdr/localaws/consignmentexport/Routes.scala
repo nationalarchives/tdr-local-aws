@@ -1,7 +1,6 @@
 package uk.gov.nationalarchives.tdr.localaws.consignmentexport
 
 import java.util.{Date, UUID}
-
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.directives.Credentials
@@ -17,6 +16,7 @@ import sttp.client.{NothingT, SttpBackend}
 import uk.gov.nationalarchives.tdr.GraphQLClient
 import uk.gov.nationalarchives.tdr.keycloak.KeycloakUtils
 
+import java.time.ZonedDateTime
 import scala.concurrent.{ExecutionContext, Future}
 
 class Routes(config: Config)(implicit val executionContext: ExecutionContext) {
@@ -54,7 +54,7 @@ class Routes(config: Config)(implicit val executionContext: ExecutionContext) {
         complete(
           for {
             token <- keycloakUtils.serviceAccountToken(clientId, clientSecret)
-            res <- updateExportLocationClient.getResult(token, uel.document, Option(uel.Variables(UpdateExportLocationInput(consignmentId, s"s3://fakeBucket/$consignmentId.tar.gz"))))
+            res <- updateExportLocationClient.getResult(token, uel.document, Option(uel.Variables(UpdateExportLocationInput(consignmentId, s"s3://fakeBucket/$consignmentId.tar.gz", Option(ZonedDateTime.now())))))
               .map(_ => Response("executionArn", new Date().getTime).asJson.noSpaces)
           } yield res
         )
