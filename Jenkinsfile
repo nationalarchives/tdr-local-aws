@@ -4,7 +4,7 @@ def repo = "tdr-local-aws"
 
 pipeline {
   agent {
-    label "master"
+    label "built-in"
   }
 
   stages {
