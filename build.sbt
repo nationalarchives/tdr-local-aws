@@ -27,7 +27,7 @@ lazy val localConsignmentExport = (project in file("consignment-export"))
       "com.typesafe.akka" %% "akka-stream" % "2.6.3",
       "de.heikoseeberger" %% "akka-http-circe" % "1.32.0",
       "uk.gov.nationalarchives" %% "tdr-graphql-client" % "0.0.15",
-      "uk.gov.nationalarchives" %% "tdr-generated-graphql" % "0.0.160",
+      "uk.gov.nationalarchives" %% "tdr-generated-graphql" % "0.0.187",
       "uk.gov.nationalarchives" %% "tdr-auth-utils" % "0.0.28",
       "io.circe" %% "circe-core" % circeVersion,
       "io.circe" %% "circe-generic" % circeVersion,
@@ -43,7 +43,7 @@ lazy val backendChecks = (project in file("backend-checks"))
       "com.typesafe" % "config" % "1.4.0",
       "uk.gov.nationalarchives" %% "tdr-auth-utils" % "0.0.19",
       "uk.gov.nationalarchives" %% "tdr-graphql-client" % "0.0.15",
-      "uk.gov.nationalarchives" %% "tdr-generated-graphql" % "0.0.141",
+      "uk.gov.nationalarchives" %% "tdr-generated-graphql" % "0.0.187",
       "org.scalatest" %% "scalatest" % "3.1.2" % Test
     )
   )
