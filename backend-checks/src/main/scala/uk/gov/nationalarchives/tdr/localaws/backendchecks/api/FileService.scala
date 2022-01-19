@@ -5,7 +5,7 @@ import java.time.Instant
 import java.util.UUID
 
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken
-import graphql.codegen.AddAntivirusMetadata.AddAntivirusMetadata
+import graphql.codegen.AddAntivirusMetadata.addAntivirusMetadata
 import graphql.codegen.AddFileMetadata.addFileMetadata
 import graphql.codegen.GetOriginalPath.getOriginalPath
 import graphql.codegen.AddFFIDMetadata.addFFIDMetadata
@@ -17,7 +17,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class FileService(
                    getDocumentClient: GraphQLClient[getOriginalPath.Data, getOriginalPath.Variables],
-                   antivirusClient: GraphQLClient[AddAntivirusMetadata.Data, AddAntivirusMetadata.Variables],
+                   antivirusClient: GraphQLClient[addAntivirusMetadata.Data, addAntivirusMetadata.Variables],
                    addMetadataClient: GraphQLClient[addFileMetadata.Data, addFileMetadata.Variables],
                    addFileFormatClient: GraphQLClient[addFFIDMetadata.Data, addFFIDMetadata.Variables]
                  ) {
@@ -34,7 +34,7 @@ class FileService(
                            metadata: AntivirusMetadata,
                            fileId: UUID,
                            token: BearerAccessToken
-                         )(implicit executionContext: ExecutionContext): Future[AddAntivirusMetadata.Data] = {
+                         )(implicit executionContext: ExecutionContext): Future[addAntivirusMetadata.Data] = {
     val mutationInput = AddAntivirusMetadataInput(
       fileId,
       metadata.software,
@@ -43,9 +43,9 @@ class FileService(
       metadata.result,
       Instant.now().toEpochMilli
     )
-    val mutationVariables = AddAntivirusMetadata.Variables(mutationInput)
+    val mutationVariables = addAntivirusMetadata.Variables(mutationInput)
 
-    sendGraphQlRequest(antivirusClient, token, mutationVariables, AddAntivirusMetadata.document)
+    sendGraphQlRequest(antivirusClient, token, mutationVariables, addAntivirusMetadata.document)
   }
 
   def saveChecksum(
