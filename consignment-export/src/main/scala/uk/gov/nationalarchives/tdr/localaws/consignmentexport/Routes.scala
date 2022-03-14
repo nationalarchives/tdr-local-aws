@@ -1,23 +1,22 @@
 package uk.gov.nationalarchives.tdr.localaws.consignmentexport
 
 import java.util.{Date, UUID}
-
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.directives.Credentials
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken
 import com.typesafe.config.Config
 import graphql.codegen.GetConsignment.{getConsignment => gc}
-import graphql.codegen.UpdateExportLocation.{updateExportLocation => uel}
-import graphql.codegen.types.UpdateExportLocationInput
+import graphql.codegen.UpdateExportData.{updateExportData => ued}
+import graphql.codegen.types.UpdateExportDataInput
 import io.circe.generic.auto._
 import io.circe.syntax._
 import sttp.client.asynchttpclient.future.AsyncHttpClientFutureBackend
 import sttp.client.{NothingT, SttpBackend}
 import uk.gov.nationalarchives.tdr.GraphQLClient
 import uk.gov.nationalarchives.tdr.keycloak.{KeycloakUtils, TdrKeycloakDeployment}
-import java.time.ZonedDateTime
 
+import java.time.ZonedDateTime
 import scala.concurrent.{ExecutionContext, Future}
 
 class Routes(config: Config)(implicit val executionContext: ExecutionContext) {
@@ -25,7 +24,7 @@ class Routes(config: Config)(implicit val executionContext: ExecutionContext) {
   case class Response(executionArn: String, startDate: Long)
 
   val getConsignmentClient = new GraphQLClient[gc.Data, gc.Variables](config.getString("api.baseUrl"))
-  val updateExportLocationClient = new GraphQLClient[uel.Data, uel.Variables](config.getString("api.baseUrl"))
+  val updateExportDataClient = new GraphQLClient[ued.Data, ued.Variables](config.getString("api.baseUrl"))
 
   implicit val sttpBackend: SttpBackend[Future, Nothing, NothingT] = AsyncHttpClientFutureBackend()
   implicit val tdrKeycloakDeployment: TdrKeycloakDeployment = TdrKeycloakDeployment(config.getString("auth.baseUrl"), "tdr", 3600)
@@ -56,8 +55,15 @@ class Routes(config: Config)(implicit val executionContext: ExecutionContext) {
         complete(
           for {
             token <- keycloakUtils.serviceAccountToken(clientId, clientSecret)
-            res <- updateExportLocationClient.getResult(token, uel.document, Option(uel.Variables(UpdateExportLocationInput(consignmentId, s"s3://fakeBucket/$consignmentId.tar.gz", Option(ZonedDateTime.now())))))
-              .map(_ => Response("executionArn", new Date().getTime).asJson.noSpaces)
+            res <- {
+              val exportDataVariables = Option(
+                ued.Variables(
+                  UpdateExportDataInput(consignmentId, s"s3://fakeBucket/$consignmentId.tar.gz", Option(ZonedDateTime.now()), "0.0.Version")
+                )
+              )
+              updateExportDataClient.getResult(token, ued.document, exportDataVariables)
+                .map(_ => Response("executionArn", new Date().getTime).asJson.noSpaces)
+            }
           } yield res
         )
       }

@@ -2,7 +2,7 @@ ThisBuild / version := "0.1"
 ThisBuild / scalaVersion := "2.13.2"
 
 val circeVersion = "0.13.0"
-val generatedGraphQlVersion = "0.0.187"
+val generatedGraphQlVersion = "0.0.215"
 
 lazy val localCognito = (project in file("cognito"))
   .settings(
