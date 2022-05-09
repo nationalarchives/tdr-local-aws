@@ -3,13 +3,12 @@ package uk.gov.nationalarchives.tdr.localaws.backendchecks.api
 import java.nio.file.{Path, Paths}
 import java.time.Instant
 import java.util.UUID
-
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken
 import graphql.codegen.AddAntivirusMetadata.addAntivirusMetadata
 import graphql.codegen.AddFileMetadata.addFileMetadata
 import graphql.codegen.GetOriginalPath.getOriginalPath
 import graphql.codegen.AddFFIDMetadata.addFFIDMetadata
-import graphql.codegen.types.{AddAntivirusMetadataInput, AddFileMetadataInput, FFIDMetadataInput, FFIDMetadataInputMatches}
+import graphql.codegen.types.{AddAntivirusMetadataInput, AddFileMetadataWithFileIdInput, FFIDMetadataInput, FFIDMetadataInputMatches}
 import uk.gov.nationalarchives.tdr.GraphQLClient
 import uk.gov.nationalarchives.tdr.localaws.backendchecks.api.GraphQl.sendGraphQlRequest
 
@@ -53,7 +52,7 @@ class FileService(
                     fileId: UUID,
                     token: BearerAccessToken
                   )(implicit executionContext: ExecutionContext): Future[addFileMetadata.Data] = {
-    val addMetadataInput = AddFileMetadataInput("SHA256ServerSideChecksum", fileId, checksum)
+    val addMetadataInput = AddFileMetadataWithFileIdInput("SHA256ServerSideChecksum", fileId, checksum)
     val mutationVariables = addFileMetadata.Variables(addMetadataInput)
 
     sendGraphQlRequest(addMetadataClient, token, mutationVariables, addFileMetadata.document)
