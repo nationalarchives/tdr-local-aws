@@ -11,8 +11,7 @@ import graphql.codegen.UpdateExportData.{updateExportData => ued}
 import graphql.codegen.types.UpdateExportDataInput
 import io.circe.generic.auto._
 import io.circe.syntax._
-import sttp.client3.asynchttpclient.future.AsyncHttpClientFutureBackend
-import sttp.client3.SttpBackend
+import sttp.client3.{HttpClientFutureBackend, SttpBackend}
 import uk.gov.nationalarchives.tdr.GraphQLClient
 import uk.gov.nationalarchives.tdr.keycloak.{KeycloakUtils, TdrKeycloakDeployment}
 
@@ -26,7 +25,7 @@ class Routes(config: Config)(implicit val executionContext: ExecutionContext) {
   val getConsignmentClient = new GraphQLClient[gc.Data, gc.Variables](config.getString("api.baseUrl"))
   val updateExportDataClient = new GraphQLClient[ued.Data, ued.Variables](config.getString("api.baseUrl"))
 
-  implicit val sttpBackend: SttpBackend[Future, Any] = AsyncHttpClientFutureBackend()
+  implicit val sttpBackend: SttpBackend[Future, Any] = HttpClientFutureBackend()
   implicit val tdrKeycloakDeployment: TdrKeycloakDeployment = TdrKeycloakDeployment(config.getString("auth.baseUrl"), "tdr", 3600)
 
   private val keycloakUtils: KeycloakUtils = KeycloakUtils()

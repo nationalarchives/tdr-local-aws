@@ -3,7 +3,7 @@ ThisBuild / scalaVersion := "2.13.2"
 
 val circeVersion = "0.14.1"
 val generatedGraphQlVersion = "0.0.240"
-val graphqlClientVersion = "0.0.31"
+val graphqlClientVersion = "0.0.32"
 val authUtilsVersion = "0.0.50"
 val akkaHttpCorsVersion = "1.1.3"
 val akkaHttpVersion = "10.2.9"
