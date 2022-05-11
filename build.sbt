@@ -1,17 +1,23 @@
 ThisBuild / version := "0.1"
 ThisBuild / scalaVersion := "2.13.2"
 
-val circeVersion = "0.13.0"
-val generatedGraphQlVersion = "0.0.187"
+val circeVersion = "0.14.1"
+val generatedGraphQlVersion = "0.0.240"
+val graphqlClientVersion = "0.0.32"
+val authUtilsVersion = "0.0.51"
+val akkaHttpCorsVersion = "1.1.3"
+val akkaHttpVersion = "10.2.9"
+val akkaStreamVersion = "2.6.19"
+val akkaHttpCirceVersion = "1.39.2"
 
 lazy val localCognito = (project in file("cognito"))
   .settings(
     name := "tdr-local-aws",
     libraryDependencies ++= Seq(
-      "ch.megard" %% "akka-http-cors" % "0.4.3",
-      "com.typesafe.akka" %% "akka-http" % "10.1.12",
-      "com.typesafe.akka" %% "akka-stream" % "2.6.3",
-      "de.heikoseeberger" %% "akka-http-circe" % "1.32.0",
+      "ch.megard" %% "akka-http-cors" % akkaHttpCorsVersion,
+      "com.typesafe.akka" %% "akka-http" % akkaHttpVersion,
+      "com.typesafe.akka" %% "akka-stream" % akkaStreamVersion,
+      "de.heikoseeberger" %% "akka-http-circe" % akkaHttpCirceVersion,
       "io.circe" %% "circe-core" % circeVersion,
       "io.circe" %% "circe-generic" % circeVersion,
       "io.circe" %% "circe-parser" % circeVersion,
@@ -21,15 +27,14 @@ lazy val localCognito = (project in file("cognito"))
 lazy val localConsignmentExport = (project in file("consignment-export"))
   .settings(
     name := "tdr-local-aws",
-    resolvers += "TDR Releases" at "s3://tdr-releases-mgmt",
     libraryDependencies ++= Seq(
-      "ch.megard" %% "akka-http-cors" % "0.4.3",
-      "com.typesafe.akka" %% "akka-http" % "10.1.12",
-      "com.typesafe.akka" %% "akka-stream" % "2.6.3",
-      "de.heikoseeberger" %% "akka-http-circe" % "1.32.0",
-      "uk.gov.nationalarchives" %% "tdr-graphql-client" % "0.0.15",
+      "ch.megard" %% "akka-http-cors" % akkaHttpCorsVersion,
+      "com.typesafe.akka" %% "akka-http" % akkaHttpVersion,
+      "com.typesafe.akka" %% "akka-stream" % akkaStreamVersion,
+      "de.heikoseeberger" %% "akka-http-circe" % akkaHttpCirceVersion,
+      "uk.gov.nationalarchives" %% "tdr-graphql-client" % graphqlClientVersion,
       "uk.gov.nationalarchives" %% "tdr-generated-graphql" % generatedGraphQlVersion,
-      "uk.gov.nationalarchives" %% "tdr-auth-utils" % "0.0.28",
+      "uk.gov.nationalarchives" %% "tdr-auth-utils" % authUtilsVersion,
       "io.circe" %% "circe-core" % circeVersion,
       "io.circe" %% "circe-generic" % circeVersion,
       "io.circe" %% "circe-parser" % circeVersion,
@@ -39,12 +44,11 @@ lazy val localConsignmentExport = (project in file("consignment-export"))
 lazy val backendChecks = (project in file("backend-checks"))
   .settings(
     name := "tdr-local-backend-checks",
-    resolvers += "TDR Releases" at "s3://tdr-releases-mgmt",
     libraryDependencies ++= Seq(
-      "com.typesafe" % "config" % "1.4.0",
-      "uk.gov.nationalarchives" %% "tdr-auth-utils" % "0.0.19",
-      "uk.gov.nationalarchives" %% "tdr-graphql-client" % "0.0.15",
+      "com.typesafe" % "config" % "1.4.2",
+      "uk.gov.nationalarchives" %% "tdr-auth-utils" % authUtilsVersion,
+      "uk.gov.nationalarchives" %% "tdr-graphql-client" % graphqlClientVersion,
       "uk.gov.nationalarchives" %% "tdr-generated-graphql" % generatedGraphQlVersion,
-      "org.scalatest" %% "scalatest" % "3.1.2" % Test
+      "org.scalatest" %% "scalatest" % "3.2.12" % Test
     )
   )

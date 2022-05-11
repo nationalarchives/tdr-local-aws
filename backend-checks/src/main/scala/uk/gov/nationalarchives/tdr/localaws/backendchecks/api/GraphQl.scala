@@ -2,14 +2,14 @@ package uk.gov.nationalarchives.tdr.localaws.backendchecks.api
 
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken
 import sangria.ast.Document
-import sttp.client.{HttpURLConnectionBackend, Identity, NothingT, SttpBackend}
+import sttp.client3.{HttpURLConnectionBackend, Identity, SttpBackend}
 import uk.gov.nationalarchives.tdr.GraphQLClient
 
 import scala.concurrent.{ExecutionContext, Future}
 
 object GraphQl {
 
-  implicit val backend: SttpBackend[Identity, Nothing, NothingT] = HttpURLConnectionBackend()
+  implicit val backend: SttpBackend[Identity, Any] = HttpURLConnectionBackend()
 
   def sendGraphQlRequest[Data, Variables](
                                            client: GraphQLClient[Data, Variables],
